@@ -214,6 +214,9 @@ export default class ChatPrivado extends React.Component {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, phone, data: lead.time, origem: location.href }),
+          // keepalive: o envio sobrevive se o visitante fechar a aba / navegar
+          // durante um cold start da função serverless — senão o lead se perde.
+          keepalive: true,
         }).catch(() => {})
       } catch (e) {}
     }
