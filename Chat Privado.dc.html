@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@keyframes floatUp { 0%{ transform:translateY(0) scale(.6); opacity:0 } 12%{ opacity:1 } 100%{ transform:translateY(-260px) scale(1.25) translateX(var(--drift,0)); opacity:0 } }
+@keyframes msgIn { from{ opacity:0; transform:translateY(8px) } to{ opacity:1; transform:translateY(0) } }
+@keyframes livePulse { 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
+.chatScroll::-webkit-scrollbar{ display:none }
+</style>
+<link rel="preload" href="https://scripts.converteai.net/fae52404-8fd3-4f9c-8167-946eb654f0d6/players/681696116fd9eb4b1a3122ec/v4/embed.html">
+<script>!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);</script>
+<link rel="preload" href="https://scripts.converteai.net/fae52404-8fd3-4f9c-8167-946eb654f0d6/players/681696116fd9eb4b1a3122ec/v4/player.js" as="script">
+<link rel="preload" href="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js" as="script">
+<link rel="preload" href="https://cdn.converteai.net/fae52404-8fd3-4f9c-8167-946eb654f0d6/681695f65a7f296ab51f0b29/main.m3u8" as="fetch">
+<link rel="dns-prefetch" href="https://cdn.converteai.net">
+<link rel="dns-prefetch" href="https://scripts.converteai.net">
+<link rel="dns-prefetch" href="https://images.converteai.net">
+<link rel="dns-prefetch" href="https://license.vturb.com">
+<script src="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js" async></script>
+</helmet>
+<div style="min-height:100vh; width:100%; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 30%, #2b2b30, #161618); padding:32px; font-family:'Roboto',-apple-system,'Segoe UI',sans-serif;">
+
+  <!-- iPhone frame -->
+  <div style="position:relative; width:392px; height:840px; background:#000; border-radius:56px; padding:11px; box-shadow:0 0 0 2px #2a2a2c, 0 30px 70px -20px rgba(0,0,0,.8);">
+    <div style="position:absolute; top:18px; left:50%; transform:translateX(-50%); width:118px; height:34px; background:#000; border-radius:20px; z-index:60;"></div>
+
+    <!-- screen -->
+    <div style="position:relative; width:100%; height:100%; border-radius:46px; overflow:hidden; background:#0a0a0a; display:flex; flex-direction:column;">
+
+      <!-- status bar -->
+      <div style="position:relative; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:16px 30px 6px; color:#fff; font-size:15px; font-weight:600; flex:none;">
+        <div style="display:flex; align-items:center; gap:6px;">16:22 <svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a5 5 0 0 0-5 5v4a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#fff" stroke-width="0" /></svg></div>
+        <div style="display:flex; align-items:center; gap:7px;">
+          <span style="display:flex; gap:2px; align-items:flex-end; height:11px;"><i style="width:3px;height:4px;background:#fff;border-radius:1px;display:block"></i><i style="width:3px;height:6px;background:#fff;border-radius:1px;display:block"></i><i style="width:3px;height:8px;background:#fff;border-radius:1px;display:block"></i><i style="width:3px;height:11px;background:#fff;border-radius:1px;display:block"></i></span>
+          <svg width="17" height="13" viewBox="0 0 24 18" fill="#fff"><path d="M12 3C7.5 3 3.7 4.9 1 7.9l11 12.1L23 7.9C20.3 4.9 16.5 3 12 3z" opacity="1"/></svg>
+          <span style="display:flex; align-items:center; gap:3px;"><span style="position:relative; width:24px; height:12px; border:1.5px solid #fff; border-radius:3px; display:inline-block;"><span style="position:absolute; left:1px; top:1px; bottom:1px; width:55%; background:#fff; border-radius:1px;"></span></span><b style="font-size:10px;">54</b></span>
+        </div>
+      </div>
+
+      <!-- video -->
+      <div style="position:relative; width:100%; background:#000; flex:none;">
+        {{ videoEmbed }}
+      </div>
+
+      <!-- chat sheet -->
+      <div style="position:relative; flex:1; min-height:0; background:#0f0f0f; border-top-left-radius:18px; border-top-right-radius:18px; margin-top:-14px; display:flex; flex-direction:column; box-shadow:0 -6px 20px rgba(0,0,0,.5);">
+        <div style="width:38px; height:5px; background:#3a3a3a; border-radius:3px; margin:9px auto 4px; flex:none;"></div>
+
+        <!-- header -->
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; padding:4px 16px 12px; flex:none;">
+          <div>
+            <div style="color:#fff; font-size:21px; font-weight:700; line-height:1.1;">Chat ao vivo</div>
+            <div style="color:#9a9a9a; font-size:13px; margin-top:3px; display:flex; align-items:center; gap:6px;">
+              Mensagens principais
+              <span style="display:flex; align-items:center; gap:3px; margin-left:4px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1"/></svg>
+                5,1 mi
+              </span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px; padding-top:3px;">
+            <button onClick="{{ openReg }}" style="background:none; border:none; padding:0; cursor:pointer; color:#cfcfcf;" title="Registro">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="#0f0f0f"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="#0f0f0f"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="18" r="2" fill="#0f0f0f"/></svg>
+            </button>
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#cfcfcf" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+          </div>
+        </div>
+
+        <!-- messages -->
+        <div ref="{{ chatRef }}" class="chatScroll" style="flex:1; min-height:0; overflow-y:auto; padding:0 14px 6px; -ms-overflow-style:none; scrollbar-width:none;">
+
+          <sc-for list="{{ fakes }}" as="f" hint-placeholder-count="2">
+            <div style="display:flex; gap:9px; padding:7px 0; align-items:flex-start; animation:msgIn .3s ease both;">
+              <div style="flex:none; width:30px; height:30px; border-radius:50%; background:{{ f.bg }}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">{{ f.letter }}</div>
+              <div style="font-size:14px; line-height:1.4;"><span style="color:{{ f.color }}; font-weight:700;">{{ f.handle }}</span> <span style="color:#f1f1f1;">{{ f.text }}</span></div>
+            </div>
+          </sc-for>
+
+          <!-- participant's own messages -->
+          <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="0">
+            <div style="display:flex; gap:9px; padding:7px 0; align-items:flex-start; animation:msgIn .25s ease both;">
+              <div style="flex:none; width:30px; height:30px; border-radius:50%; background:#1565c0; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">V</div>
+              <div style="font-size:14px; line-height:1.4;"><span style="color:#7cb3ff; font-weight:700;">@você</span> <span style="color:#f1f1f1;">{{ m.text }}</span></div>
+            </div>
+          </sc-for>
+          <div style="height:4px;"></div>
+        </div>
+
+        <!-- floating hearts layer -->
+        <div ref="{{ heartsRef }}" style="position:absolute; right:14px; bottom:70px; width:60px; height:300px; pointer-events:none; z-index:30;"></div>
+
+        <!-- composer -->
+        <div style="flex:none; display:flex; align-items:center; gap:10px; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); border-top:1px solid #1f1f1f; background:#0f0f0f;">
+          <div style="flex:none; width:30px; height:30px; border-radius:50%; background:#1565c0; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">V</div>
+          <input value="{{ draft }}" onInput="{{ onDraft }}" onKeyDown="{{ onKey }}" onFocus="{{ gate }}" placeholder="Comente algo..." style="flex:1; min-width:0; background:#1f1f1f; border:none; outline:none; color:#fff; font-size:14px; padding:11px 14px; border-radius:22px; font-family:inherit;" />
+          <button onClick="{{ spawnHeart }}" style="background:none; border:none; cursor:pointer; padding:4px; display:flex;">
+            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.5 3-3.3 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.2 1.5 4 3 5.5l7 7 7-7z"/></svg>
+          </button>
+          <button onClick="{{ send }}" style="flex:none; width:38px; height:38px; border-radius:50%; border:none; cursor:pointer; background:{{ sendBg }}; display:flex; align-items:center; justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="6 11 12 5 18 11"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- lead capture overlay -->
+      <sc-if value="{{ showLead }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; z-index:90; background:rgba(0,0,0,.8); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:22px;">
+          <div style="width:100%; background:#1c1c1c; border:1px solid #2a2a2a; border-radius:18px; padding:22px 20px 20px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div style="color:#fff; font-size:19px; font-weight:700;">Participe do chat</div>
+              <button onClick="{{ closeLead }}" style="background:none;border:none;cursor:pointer;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+            </div>
+            <div style="color:#9a9a9a; font-size:13px; margin-top:4px; margin-bottom:18px;">Preencha seus dados para liberar seus comentários ao vivo.</div>
+            <input value="{{ leadName }}" onInput="{{ onLeadName }}" placeholder="Nome completo" style="width:100%; box-sizing:border-box; background:#262626; border:1px solid #333; outline:none; color:#fff; font-size:15px; padding:13px 14px; border-radius:11px; margin-bottom:10px; font-family:inherit;" />
+            <input value="{{ leadPhone }}" onInput="{{ onLeadPhone }}" inputMode="tel" placeholder="Telefone / WhatsApp" style="width:100%; box-sizing:border-box; background:#262626; border:1px solid #333; outline:none; color:#fff; font-size:15px; padding:13px 14px; border-radius:11px; margin-bottom:10px; font-family:inherit;" />
+            <input value="{{ leadEmail }}" onInput="{{ onLeadEmail }}" inputMode="email" placeholder="E-mail" style="width:100%; box-sizing:border-box; background:#262626; border:1px solid #333; outline:none; color:#fff; font-size:15px; padding:13px 14px; border-radius:11px; font-family:inherit;" />
+            <sc-if value="{{ leadErr }}" hint-placeholder-val="">
+              <div style="color:#ff6b6b; font-size:12px; margin-top:10px;">{{ leadErr }}</div>
+            </sc-if>
+            <button onClick="{{ submitLead }}" style="width:100%; margin-top:16px; padding:14px; border-radius:12px; border:none; cursor:pointer; background:linear-gradient(180deg,#12b87f,#0a7d54); color:#fff; font-size:15px; font-weight:700; font-family:inherit;">Liberar comentários</button>
+            <div style="color:#666; font-size:11px; text-align:center; margin-top:12px;">Seus dados ficam salvos apenas neste dispositivo.</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- registro overlay -->
+      <sc-if value="{{ showReg }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; z-index:80; background:rgba(0,0,0,.75); backdrop-filter:blur(3px); display:flex; flex-direction:column;">
+          <div style="margin-top:auto; background:#1a1a1a; border-top-left-radius:20px; border-top-right-radius:20px; max-height:78%; display:flex; flex-direction:column; padding:18px 18px calc(18px + env(safe-area-inset-bottom));">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+              <div style="color:#fff; font-size:18px; font-weight:700;">Registro do participante</div>
+              <button onClick="{{ closeReg }}" style="background:none;border:none;cursor:pointer;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+            </div>
+            <sc-if value="{{ lead }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#10271c; border:1px solid #1c4a35; border-radius:10px; padding:10px 12px; margin-bottom:12px;">
+                <div style="color:#5fd6a0; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin-bottom:4px;">Participante</div>
+                <div style="color:#eee; font-size:14px;">{{ lead.name }}</div>
+                <div style="color:#9a9a9a; font-size:12px;">{{ lead.phone }} · {{ lead.email }}</div>
+              </div>
+            </sc-if>
+            <div style="color:#8a8a8a; font-size:13px; margin-bottom:14px;">{{ regCount }} mensagem(ns) salvas neste dispositivo</div>
+            <div class="chatScroll" style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+              <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="2">
+                <div style="background:#262626; border-radius:10px; padding:10px 12px;">
+                  <div style="color:#7cb3ff; font-size:11px; font-family:monospace; margin-bottom:3px;">{{ m.time }}</div>
+                  <div style="color:#eee; font-size:14px;">{{ m.text }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:14px;">
+              <button onClick="{{ downloadCsv }}" style="flex:1; padding:13px; border-radius:12px; border:none; cursor:pointer; background:linear-gradient(180deg,#12b87f,#0a7d54); color:#fff; font-size:14px; font-weight:700; font-family:inherit;">Baixar CSV</button>
+              <button onClick="{{ copyAll }}" style="flex:none; padding:13px 16px; border-radius:12px; border:none; cursor:pointer; background:#2b2b2b; color:#fff; font-size:14px; font-weight:600; font-family:inherit;">{{ copyLabel }}</button>
+              <button onClick="{{ clearAll }}" style="flex:none; padding:13px 16px; border-radius:12px; border:none; cursor:pointer; background:#3a1c1c; color:#ff6b6b; font-size:14px; font-weight:600; font-family:inherit;">Limpar</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:920},&quot;videoMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:50,&quot;min&quot;:3,&quot;max&quot;:120,&quot;tsType&quot;:&quot;number&quot;},&quot;webhookUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://functions-api.clint.digital/endpoints/integration/webhook/bf9aa1eb-e684-4c0a-803d-2cd8314fc0b2&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  KEY = 'chatPrivado_msgs_v1';
+  LEADKEY = 'chatPrivado_lead_v1';
+  WEBHOOK = 'https://functions-api.clint.digital/endpoints/integration/webhook/bf9aa1eb-e684-4c0a-803d-2cd8314fc0b2';
+  AVS = ['#8d6e63','#546e7a','#5c6bc0','#7e57c2','#26a69a','#455a64','#ab47bc','#6d4c41','#0e9f6e','#d4a017','#c62828','#00897b','#5e35b1','#43a047','#795548','#3949ab','#00838f'];
+  GREETINGS = [
+    ['lucas_mg','oi gente'],
+    ['ana_pec','olá pessoal 👋'],
+    ['joao_fazenda','cheguei agora'],
+    ['marcos_go','boa noite a todos'],
+    ['pec_minas','sou de MG, tem mais alguém?'],
+    ['rancho_go','to de goiás aqui'],
+    ['tiao_boi','presente!'],
+    ['cleber_agro','salve salve'],
+    ['vania_rural','demorei pra entrar kkk'],
+    ['edu_pasto','bora começar'],
+  ];
+  RAW = [
+    ['joaorural77','isso da arroba produzida eu nunca tinha feito conta 😳'],
+    ['marcosfazenda','gastar pouco e produzir caro kkkk sou eu'],
+    ['pecuarista_mg','o exemplo do seu joao doeu aqui 😂'],
+    ['boi_gordo33','o mercado não salva produtor desorganizado'],
+    ['agro_carlos','o problema é produzir arroba cara e nem saber'],
+    ['fazenda_silva','quem não faz conta paga conta kkkkk verdade'],
+    ['carlosboiadeiro','Faz sentido demais, eu olho só preço de compra'],
+    ['fazenda_santana','gado não é dólar foi lapada kkkkk'],
+    ['leandroagro','Esse trem de fazenda ser fábrica mudou minha cabeça'],
+    ['zeca_do_gado','compra produção e venda, simples mas ninguém faz'],
+    ['rodrigopec','o cara economiza no suplemento e perde no tempo'],
+    ['agrobruto','Verdade demais, boi parado come lucro'],
+    ['mariapecuaria','meu pai faz igual o seu João kkkk'],
+    ['fazendeiro_raiz','essa conta dos 2,50 contra 5 reais foi pesada'],
+    ['lucasagro','eu achava q gastar menos era sempre melhor'],
+    ['thiagoboi','custo por arroba produzida é o jogo então'],
+    ['renatocorte','nunca calculei diária por cabeça assim'],
+    ['pedropecuaria','aí sim conteúdo de verdade 👏👏'],
+    ['valterfazenda','isso explica pq trabalho e não vejo dinheiro sobrar'],
+    ['eduardorural','eu vivo esperando arroba subir kkkk complicado'],
+    ['agro_leo','se não produz peso todo dia ta dando prejuízo'],
+    ['josepecuaria','essa parte do caixa separado é ouro'],
+    ['fazenda_nova','eu quase usei todo dinheiro só pra comprar gado'],
+    ['mateusgado','tem que entrar com caixa, não só com coragem'],
+    ['neloreforte','preço médio de compra e venda faz muito sentido'],
+    ['pecuarista_sp','venda acontece antes, essa foi boa'],
+    ['boiadeiro_mg','se deixar pra vender no final fica na mão msm'],
+    ['agroinvestidor','eu tenho outra renda e quero entrar sem fazer besteira'],
+    ['leilao_rural','essa parte dos 6 critérios de compra foi top'],
+    ['marcelofazenda','quantidade e localização eu nunca colocava na conta'],
+    ['ranchoverde','homogeneidade do lote pouca gente olha'],
+    ['pecuariareal','comprar barato sem peso é cilada'],
+    ['ricardoagro','o barato sai caro até no bezerro kkkkk'],
+    ['fazenda_ouro','padrão racial não é só raça, boa explicação'],
+    ['boi_no_pasto','esse negócio de olhar costela e carcaça é detalhe q muda tudo'],
+    ['agrodaniel','pasto é margem, confinamento é escala. anotado'],
+    ['suplementacao_br','produzir o próprio suplemento parece ser onde mora a margem'],
+    ['jonasgado','eu compro pronto e já vi que to pagando caro'],
+    ['fazenda_boa','salto de 800g pra 1,1kg muda tudo'],
+    ['agro_raiz','suplementação certa não é gasto, é investimento'],
+    ['nelore_mg','capim sozinho não paga conta não'],
+    ['pecuarista_21','rotacionado não é frescura então kkk'],
+    ['marcosrural','altura de entrada e saída eu nunca respeitei'],
+    ['boiadeiro77','agora entendi pq meu pasto não recupera'],
+    ['fazendinha_top','cada kg importa demais'],
+    ['luizpec','essa aula já valeu mais que muito curso por aí'],
+    ['robertofazenda','quero ver mais sobre essa regra 60/40'],
+    ['joaopauloagro','esse TRI parece ser o próximo passo mesmo'],
+    ['fazenda_minas','tem isso explicado com planilha?'],
+    ['nelorebr','onde entra pra ver as formulações?'],
+    ['agroempreendedor','esse mapa do resultado parece bom pra quem ta começando'],
+    ['pecuarista_novo','eu preciso organizar minha operação antes de comprar'],
+    ['boigordo_oficial','não é sorte, é método. simples assim'],
+    ['vitorrural','o erro é achar que pecuária é só comprar e soltar'],
+    ['agrominas','essa parte de não depender da arroba subir é forte'],
+    ['produtor_goias','deu até vergonha das minhas contas aqui'],
+    ['pecuaria_lucro','esse vídeo abriu a mente'],
+    ['agroforte','conteúdo direto, sem enrolação'],
+    ['marianaagro','meu marido precisa ver isso urgente 😂'],
+    ['paulo_rural','vou mandar no grupo da fazenda agora'],
+    ['boiadeiro_raiz','essa aula devia passar em sindicato rural'],
+  ];
+  queue() { return this._q || (this._q = this.GREETINGS.concat(this.RAW)); }
+  buildFakes() {
+    return this.queue().slice(0, this.state.shown).map((r, i) => ({
+      handle: '@' + r[0],
+      text: r[1],
+      letter: r[0][0].toUpperCase(),
+      bg: this.AVS[i % this.AVS.length],
+      color: (i % 5 === 0) ? '#5fa463' : '#9aa0a6',
+    }));
+  }
+  scheduleReveal = () => {
+    const total = this.queue().length;
+    if (this.state.shown >= total) return;
+    const G = this.GREETINGS.length;
+    let delay;
+    if (this.state.shown < G) {
+      delay = 1200 + Math.random() * 1600;
+    } else {
+      const windowMs = (this.props.videoMinutes ?? 20) * 60000;
+      const elapsed = Date.now() - (this._start || Date.now());
+      const remaining = total - this.state.shown;
+      const left = Math.max(windowMs - elapsed, remaining * 1500);
+      const step = left / remaining;
+      delay = step * (0.6 + Math.random() * 0.8);
+    }
+    this._timer = setTimeout(() => {
+      this.setState((s) => ({ shown: Math.min(s.shown + 1, total) }), () => this.maybeScroll(false));
+      this.scheduleReveal();
+    }, delay);
+  };
+  maybeScroll(force) {
+    const el = this.chatRef.current;
+    if (!el) return;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < 130;
+    if (force || near) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }
+  componentWillUnmount() { clearTimeout(this._timer); }
+  chatRef = React.createRef();
+  heartsRef = React.createRef();
+  state = { msgs: [], draft: '', showReg: false, copyLabel: 'Copiar tudo',
+    lead: null, showLead: false, leadName: '', leadPhone: '', leadEmail: '', leadErr: '', shown: 2 };
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      if (raw) this.setState({ msgs: JSON.parse(raw) }, () => this.scrollDown());
+      const lraw = localStorage.getItem(this.LEADKEY);
+      if (lraw) this.setState({ lead: JSON.parse(lraw) });
+    } catch (e) {}
+    this._start = Date.now();
+    this.scheduleReveal();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.msgs.length !== this.state.msgs.length) this.scrollDown();
+  }
+  scrollDown() {
+    const el = this.chatRef.current;
+    if (el) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }
+  persist(msgs) {
+    try { localStorage.setItem(this.KEY, JSON.stringify(msgs)); } catch (e) {}
+  }
+  gate = () => {
+    if (!this.state.lead) {
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      this.setState({ showLead: true, leadErr: '' });
+    }
+  };
+  onLeadName = (e) => this.setState({ leadName: e.target.value });
+  onLeadPhone = (e) => this.setState({ leadPhone: e.target.value });
+  onLeadEmail = (e) => this.setState({ leadEmail: e.target.value });
+  closeLead = () => this.setState({ showLead: false });
+  submitLead = () => {
+    const name = this.state.leadName.trim();
+    const phone = this.state.leadPhone.trim();
+    const email = this.state.leadEmail.trim();
+    if (name.length < 2) return this.setState({ leadErr: 'Informe seu nome completo.' });
+    if (phone.replace(/\D/g, '').length < 8) return this.setState({ leadErr: 'Informe um telefone válido.' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return this.setState({ leadErr: 'Informe um e-mail válido.' });
+    const lead = { name, phone, email, time: new Date().toLocaleString('pt-BR') };
+    try { localStorage.setItem(this.LEADKEY, JSON.stringify(lead)); } catch (e) {}
+    const url = this.props.webhookUrl || this.WEBHOOK;
+    if (url) {
+      try {
+        fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ name: name, email: email, phone: phone, nome: name, telefone: phone, data: lead.time, origem: location.href }) }).catch(() => {});
+      } catch (e) {}
+    }
+    this.setState({ lead, showLead: false, leadErr: '' });
+  };
+  downloadCsv = () => {
+    const l = this.state.lead || {};
+    const rows = [['campo', 'valor'], ['nome', l.name || ''], ['telefone', l.phone || ''], ['email', l.email || ''], ['data', l.time || '']];
+    this.state.msgs.forEach((m, i) => rows.push(['comentario ' + (i + 1), m.text]));
+    const csv = rows.map((r) => r.map((c) => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'contato-' + String(l.name || 'participante').replace(/\s+/g, '-').toLowerCase() + '.csv';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+
+  send = () => {
+    if (!this.state.lead) { this.setState({ showLead: true, leadErr: '' }); return; }
+    const t = this.state.draft.trim();
+    if (!t) return;
+    const now = new Date();
+    const time = now.toLocaleString('pt-BR');
+    const msgs = [...this.state.msgs, { id: Date.now(), text: t, time }];
+    this.persist(msgs);
+    this.setState({ msgs, draft: '' });
+  };
+  onDraft = (e) => { if (!this.state.lead) return; this.setState({ draft: e.target.value }); };
+  onKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); this.send(); } };
+
+  spawnHeart = () => {
+    const layer = this.heartsRef.current;
+    if (!layer) return;
+    const n = 1 + Math.floor(Math.random() * 2);
+    const set = ['❤️','🧡','💛','🔥','😍','⚽'];
+    for (let i = 0; i < n; i++) {
+      const h = document.createElement('div');
+      h.textContent = set[Math.floor(Math.random() * set.length)];
+      const drift = (Math.random() * 40 - 20) + 'px';
+      h.style.cssText = 'position:absolute;bottom:0;right:' + (6 + Math.random()*22) + 'px;font-size:' + (20 + Math.random()*12) + 'px;animation:floatUp ' + (2 + Math.random()*0.8) + 's ease-out forwards;--drift:' + drift + ';';
+      layer.appendChild(h);
+      setTimeout(() => h.remove(), 3000);
+    }
+  };
+
+  openReg = () => this.setState({ showReg: true, copyLabel: 'Copiar tudo' });
+  closeReg = () => this.setState({ showReg: false });
+  copyAll = () => {
+    const txt = this.state.msgs.map(m => '[' + m.time + '] ' + m.text).join('\n');
+    try { navigator.clipboard.writeText(txt); } catch (e) {}
+    this.setState({ copyLabel: 'Copiado!' });
+    setTimeout(() => this.setState({ copyLabel: 'Copiar tudo' }), 1500);
+  };
+  clearAll = () => {
+    this.persist([]);
+    this.setState({ msgs: [] });
+  };
+
+  videoHtml() {
+    return `<div id="ifr_681696116fd9eb4b1a3122ec_wrapper" style="margin:0 auto;width:100%;"><div style="position:relative;padding:56.074766355140184% 0 0 0;" id="ifr_681696116fd9eb4b1a3122ec_aspect"><iframe frameborder="0" allowfullscreen src="about:blank" id="ifr_681696116fd9eb4b1a3122ec" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" referrerpolicy="origin" onload=" this.onload=null, this.src='https://scripts.converteai.net/fae52404-8fd3-4f9c-8167-946eb654f0d6/players/681696116fd9eb4b1a3122ec/v4/embed.html' +(location.search||'?') +'&vl=' +encodeURIComponent(location.href)"></iframe></div></div>`;
+  }
+
+  renderVals() {
+    return {
+      videoEmbed: React.createElement('div', { style: { width: '100%' }, dangerouslySetInnerHTML: { __html: this.videoHtml() } }),
+      fakes: this.buildFakes(),
+      msgs: this.state.msgs,
+      lead: this.state.lead,
+      showLead: this.state.showLead,
+      leadName: this.state.leadName,
+      leadPhone: this.state.leadPhone,
+      leadEmail: this.state.leadEmail,
+      leadErr: this.state.leadErr,
+      gate: this.gate,
+      onLeadName: this.onLeadName,
+      onLeadPhone: this.onLeadPhone,
+      onLeadEmail: this.onLeadEmail,
+      submitLead: this.submitLead,
+      closeLead: this.closeLead,
+      draft: this.state.draft,
+      showReg: this.state.showReg,
+      regCount: this.state.msgs.length,
+      copyLabel: this.state.copyLabel,
+      sendBg: this.state.draft.trim() ? '#cc0000' : '#3a3a3a',
+      chatRef: this.chatRef,
+      heartsRef: this.heartsRef,
+      send: this.send,
+      onDraft: this.onDraft,
+      onKey: this.onKey,
+      spawnHeart: this.spawnHeart,
+      openReg: this.openReg,
+      closeReg: this.closeReg,
+      copyAll: this.copyAll,
+      downloadCsv: this.downloadCsv,
+      clearAll: this.clearAll,
+    };
+  }
+}
+</script>
+</body>
+</html>
