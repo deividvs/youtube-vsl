@@ -57,22 +57,32 @@ export async function POST(request) {
 
   const webhook = process.env.CLINT_WEBHOOK_URL || DEFAULT_WEBHOOK
 
+  // Never hang on a slow/stuck CRM: abort the forward after 10s.
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 10000)
+
   try {
     const res = await fetch(webhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: controller.signal,
     })
 
+    const text = await res.text().catch(() => '')
+
     if (!res.ok) {
-      const text = await res.text().catch(() => '')
       console.error('[api/lead] Clint webhook failed', res.status, text.slice(0, 500))
-      return NextResponse.json({ ok: false, error: 'webhook_failed' }, { status: 502 })
+      return NextResponse.json({ ok: false, error: 'webhook_failed', status: res.status }, { status: 502 })
     }
 
+    console.log('[api/lead] forwarded to Clint', res.status, text.slice(0, 200))
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('[api/lead] Clint webhook error', err)
-    return NextResponse.json({ ok: false, error: 'webhook_error' }, { status: 502 })
+    const reason = err?.name === 'AbortError' ? 'webhook_timeout' : 'webhook_error'
+    console.error('[api/lead]', reason, err)
+    return NextResponse.json({ ok: false, error: reason }, { status: 502 })
+  } finally {
+    clearTimeout(timeout)
   }
 }
