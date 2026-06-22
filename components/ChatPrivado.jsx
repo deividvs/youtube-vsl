@@ -295,7 +295,6 @@ export default class ChatPrivado extends React.Component {
 
             {/* video */}
             <div style={{ position: 'relative', width: '100%', background: '#000', flex: 'none' }}>
-              <LiveBadge />
               <VideoPlayer />
             </div>
 
@@ -457,15 +456,6 @@ function StatusBar() {
           <b style={{ fontSize: 10 }}>54</b>
         </span>
       </div>
-    </div>
-  )
-}
-
-function LiveBadge() {
-  return (
-    <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 20, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(0,0,0,.55)', padding: '4px 9px', borderRadius: 6 }}>
-      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff3b30', display: 'block', animation: 'livePulse 1.6s infinite' }} />
-      <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '.06em' }}>AO VIVO</span>
     </div>
   )
 }
