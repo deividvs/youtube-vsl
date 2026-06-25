@@ -1,4 +1,5 @@
 import Script from 'next/script'
+import WhatsAppButton from '../components/WhatsAppButton.jsx'
 import './globals.css'
 
 export const metadata = {
@@ -18,6 +19,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <head>
+        {/* jQuery — precisa carregar ANTES do GTM, pois há uma tag no container
+            GTM-P83M3DV que usa jQuery/$ (senão: "ReferenceError: jQuery is not defined"). */}
+        <Script
+          src="https://code.jquery.com/jquery-3.7.1.min.js"
+          integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+          crossOrigin="anonymous"
+          strategy="beforeInteractive"
+        />
+
         {/* Google Tag Manager */}
         <Script id="gtm" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -46,6 +56,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <link rel="dns-prefetch" href="https://scripts.converteai.net" />
         <link rel="dns-prefetch" href="https://images.converteai.net" />
         <link rel="dns-prefetch" href="https://license.vturb.com" />
+
+        {/* Font Awesome (ícone do WhatsApp) */}
+        <link
+          rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"
+          integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V"
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         {/* Google Tag Manager (noscript) */}
@@ -59,6 +77,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   )
