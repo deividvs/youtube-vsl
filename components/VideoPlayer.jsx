@@ -2,25 +2,23 @@
 
 import React from 'react'
 
-const PLAYER_ID = '6ae6c5c96efe4af03916e60b'
-const PLAYER_ACCOUNT = 'fae52404-8fd3-4f9c-8167-946eb654f0d6'
-const SMARTPLAYER_ID = `vid-${PLAYER_ID}`
-const SCRIPT_ID = `vturb-player-${PLAYER_ID}`
-
 export default class VideoPlayer extends React.Component {
   componentDidMount() {
-    if (document.getElementById(SCRIPT_ID)) return
+    const { playerAccount, playerId } = this.props
+    const scriptId = `vturb-player-${playerId}`
+    if (document.getElementById(scriptId)) return
 
     const script = document.createElement('script')
-    script.id = SCRIPT_ID
-    script.src = `https://scripts.converteai.net/${PLAYER_ACCOUNT}/players/${PLAYER_ID}/v4/player.js`
+    script.id = scriptId
+    script.src = `https://scripts.converteai.net/${playerAccount}/players/${playerId}/v4/player.js`
     script.async = true
     document.head.appendChild(script)
   }
 
   render() {
+    const { playerId } = this.props
     return React.createElement('vturb-smartplayer', {
-      id: SMARTPLAYER_ID,
+      id: `vid-${playerId}`,
       style: {
         display: 'block',
         margin: '0 auto',

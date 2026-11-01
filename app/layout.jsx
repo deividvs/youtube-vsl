@@ -12,9 +12,6 @@ export const viewport = {
   viewportFit: 'cover',
 }
 
-const PLAYER_ACCOUNT = 'fae52404-8fd3-4f9c-8167-946eb654f0d6'
-const PLAYER_ID = '6ae6c5c96efe4af03916e60b'
-
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
@@ -26,6 +23,15 @@ export default function RootLayout({ children }) {
           integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
           crossOrigin="anonymous"
           strategy="beforeInteractive"
+        />
+
+        <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-P83M3DV" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());`,
+          }}
         />
 
         {/* Google Tag Manager */}
@@ -51,21 +57,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           dangerouslySetInnerHTML={{
             __html: '!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);',
           }}
-        />
-        <link
-          rel="preload"
-          as="script"
-          href={`https://scripts.converteai.net/${PLAYER_ACCOUNT}/players/${PLAYER_ID}/v4/player.js`}
-        />
-        <link
-          rel="preload"
-          href="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js"
-          as="script"
-        />
-        <link
-          rel="preload"
-          href="https://cdn.converteai.net/fae52404-8fd3-4f9c-8167-946eb654f0d6/6ae6c567ced384a606ed4db0/main.m3u8"
-          as="fetch"
         />
         <link rel="dns-prefetch" href="https://cdn.converteai.net" />
         <link rel="dns-prefetch" href="https://scripts.converteai.net" />

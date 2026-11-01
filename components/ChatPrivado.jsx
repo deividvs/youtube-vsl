@@ -333,7 +333,7 @@ export default class ChatPrivado extends React.Component {
 
             {/* video */}
             <div style={{ position: 'relative', width: '100%', background: '#000', flex: 'none' }}>
-              <VideoPlayer />
+              <VideoPlayer playerAccount={this.props.playerAccount} playerId={this.props.playerId} />
             </div>
 
             {/* chat sheet */}
@@ -343,7 +343,7 @@ export default class ChatPrivado extends React.Component {
               {/* header */}
               <div style={S.header}>
                 <div>
-                  <div style={{ color: '#fff', fontSize: 21, fontWeight: 700, lineHeight: 1.1 }}>Chat ao vivo</div>
+                  <div style={{ color: '#fff', fontSize: 21, fontWeight: 700, lineHeight: 1.1 }}>Chat</div>
                   <div style={{ color: '#9a9a9a', fontSize: 13, marginTop: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
                     Mensagens principais
                     <span style={{ display: 'flex', alignItems: 'center', gap: 3, marginLeft: 4 }}>
