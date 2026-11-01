@@ -2,6 +2,7 @@
 
 import React from 'react'
 import VideoPlayer from './VideoPlayer.jsx'
+import { ChatRecorder } from '../lib/chat-recorder.mjs'
 
 /* ------------------------------------------------------------------ *
  * Data: avatar palette, scripted greetings + content messages.
@@ -102,7 +103,7 @@ export default class ChatPrivado extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      msgs: [], draft: '', showReg: false, copyLabel: 'Copiar tudo',
+      msgs: [], draft: '', chatStatus: '', showReg: false, copyLabel: 'Copiar tudo',
       lead: null, showLead: false, leadName: '', leadPhone: '', leadEmail: '', leadErr: '', leadSending: false, shown: 2,
     }
     this.chatRef = React.createRef()
@@ -160,6 +161,21 @@ export default class ChatPrivado extends React.Component {
       const lraw = localStorage.getItem(LEADKEY)
       if (lraw) this.setState({ lead: JSON.parse(lraw) })
     } catch (e) {}
+    this.recorder = new ChatRecorder({ storage: localStorage, uuid: () => crypto.randomUUID(),
+      onStatus: chatStatus => { if (!this.unmounted) this.setState({ chatStatus }) },
+      send: async body => {
+        const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body), keepalive: true, signal: AbortSignal.timeout(15000) })
+        if (!res.ok) throw new Error('chat_storage_failed')
+      } })
+    this.setState({ draft: this.recorder.draft || '' }, () => {
+      if (this.state.draft && this.state.lead) this.recorder.edit(this.state.draft, this.state.lead, location.href)
+    })
+    window.addEventListener('pagehide', this.flushChat)
+    window.addEventListener('online', this.flushChat)
+    document.addEventListener('visibilitychange', this.onVisibility)
+    this.chatRetry = setInterval(this.flushChat, 15000)
+    this.recorder.flush()
     this._start = Date.now()
     this.scheduleReveal()
   }
@@ -169,8 +185,18 @@ export default class ChatPrivado extends React.Component {
   }
 
   componentWillUnmount() {
+    this.unmounted = true
+    this.flushChat()
+    this.recorder?.dispose()
+    clearInterval(this.chatRetry)
+    window.removeEventListener('pagehide', this.flushChat)
+    window.removeEventListener('online', this.flushChat)
+    document.removeEventListener('visibilitychange', this.onVisibility)
     clearTimeout(this._timer)
   }
+
+  flushChat = () => this.recorder?.snapshot()
+  onVisibility = () => { if (document.visibilityState === 'hidden') this.flushChat() }
 
   scrollDown() {
     const el = this.chatRef.current
@@ -217,6 +243,7 @@ export default class ChatPrivado extends React.Component {
       })
       const result = await response.json()
       if (!response.ok || result.ok !== true) throw new Error('delivery_failed')
+      lead.id = this.pendingLead.id
       try { localStorage.setItem(LEADKEY, JSON.stringify(lead)) } catch (e) {}
       this.pendingLead = null
       this.setState({ lead, showLead: false, leadErr: '' })
@@ -262,11 +289,17 @@ export default class ChatPrivado extends React.Component {
     if (!t) return
     const time = new Date().toLocaleString('pt-BR')
     const msgs = [...this.state.msgs, { id: Date.now(), text: t, time }]
+    this.recorder?.submitted(t, this.state.lead, location.href)
     this.persist(msgs)
     this.setState({ msgs, draft: '' })
   }
-  onDraft = (e) => { if (!this.state.lead) return; this.setState({ draft: e.target.value }) }
-  onKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); this.send() } }
+  onDraft = (e) => {
+    if (!this.state.lead) return
+    const draft = e.target.value.slice(0, 4000)
+    this.setState({ draft })
+    this.recorder?.edit(draft, this.state.lead, location.href)
+  }
+  onKey = (e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); this.send() } }
 
   /* hearts ---------------------------------------------------------- */
   spawnHeart = () => {
@@ -354,11 +387,18 @@ export default class ChatPrivado extends React.Component {
               {/* floating hearts layer */}
               <div ref={this.heartsRef} style={{ position: 'absolute', right: 14, bottom: 70, width: 60, height: 300, pointerEvents: 'none', zIndex: 30 }} />
 
+              <div id="chat-storage-notice" style={{ color: '#b5b5b5', fontSize: 11, padding: '6px 14px' }}>
+                Rascunhos, mesmo sem enviar, e mensagens são salvos e vinculados ao seu cadastro para análise das dúvidas e acompanhamento pela equipe.
+                <span role="status" style={{ display: 'block', marginTop: 3 }}>{this.state.chatStatus}</span>
+              </div>
               {/* composer */}
               <div style={S.composer}>
                 <div style={{ ...S.avatar, background: '#1565c0' }}>V</div>
                 <input
                   value={draft}
+                  maxLength={4000}
+                  aria-describedby="chat-storage-notice"
+                  onBlur={this.flushChat}
                   onInput={this.onDraft}
                   onChange={() => {}}
                   onKeyDown={this.onKey}
@@ -391,7 +431,7 @@ export default class ChatPrivado extends React.Component {
                   <input value={leadEmail} onInput={this.onLeadEmail} onChange={() => {}} inputMode="email" placeholder="E-mail" style={{ ...S.leadInput, marginBottom: 0 }} />
                   {leadErr && <div style={{ color: '#ff6b6b', fontSize: 12, marginTop: 10 }}>{leadErr}</div>}
                   <button onClick={this.submitLead} disabled={this.state.leadSending} style={{ ...S.greenCta, opacity: this.state.leadSending ? 0.65 : 1 }}>{this.state.leadSending ? 'Enviando...' : 'Liberar comentários'}</button>
-                  <div style={{ color: '#666', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Seus dados serão enviados à nossa equipe para registrar seu cadastro.</div>
+                  <div style={{ color: '#666', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Seus dados, mensagens e rascunhos (mesmo sem enviar) serão armazenados pela nossa equipe para analisar dúvidas e acompanhar seu atendimento.</div>
                 </div>
               </div>
             )}
@@ -425,7 +465,7 @@ export default class ChatPrivado extends React.Component {
                   <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
                     <button onClick={this.downloadCsv} style={{ ...S.greenCta, flex: 1, marginTop: 0, padding: 13, fontSize: 14 }}>Baixar CSV</button>
                     <button onClick={this.copyAll} style={{ flex: 'none', padding: '13px 16px', borderRadius: 12, border: 'none', cursor: 'pointer', background: '#2b2b2b', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit' }}>{copyLabel}</button>
-                    <button onClick={this.clearAll} style={{ flex: 'none', padding: '13px 16px', borderRadius: 12, border: 'none', cursor: 'pointer', background: '#3a1c1c', color: '#ff6b6b', fontSize: 14, fontWeight: 600, fontFamily: 'inherit' }}>Limpar</button>
+                    <button onClick={this.clearAll} style={{ flex: 'none', padding: '13px 16px', borderRadius: 12, border: 'none', cursor: 'pointer', background: '#3a1c1c', color: '#ff6b6b', fontSize: 14, fontWeight: 600, fontFamily: 'inherit' }}>Limpar neste aparelho</button>
                   </div>
                 </div>
               </div>
