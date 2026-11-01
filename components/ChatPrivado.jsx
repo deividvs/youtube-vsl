@@ -87,8 +87,7 @@ const RAW = [
   ['boiadeiro_raiz', 'essa aula devia passar em sindicato rural'],
 ]
 
-/* Same-origin proxy: the Next.js route /api/lead forwards to the Clint CRM
-   server-side (real webhook URL stays in env, no CORS, failures are logged). */
+/* Same-origin server route writes to Google Sheets and forwards to Clint. */
 const DEFAULT_WEBHOOK = '/api/lead'
 const KEY = 'chatPrivado_msgs_v1'
 const LEADKEY = 'chatPrivado_lead_v1'
@@ -104,16 +103,12 @@ export default class ChatPrivado extends React.Component {
     super(props)
     this.state = {
       msgs: [], draft: '', showReg: false, copyLabel: 'Copiar tudo',
-      lead: null, showLead: false, leadName: '', leadPhone: '', leadEmail: '', leadErr: '', shown: 2,
+      lead: null, showLead: false, leadName: '', leadPhone: '', leadEmail: '', leadErr: '', leadSending: false, shown: 2,
     }
     this.chatRef = React.createRef()
     this.heartsRef = React.createRef()
     this._timer = null
     this._start = 0
-  }
-
-  get WEBHOOK() {
-    return this.props.webhookUrl || DEFAULT_WEBHOOK
   }
 
   queue() {
@@ -198,7 +193,8 @@ export default class ChatPrivado extends React.Component {
   onLeadEmail = (e) => this.setState({ leadEmail: e.target.value })
   closeLead = () => this.setState({ showLead: false })
 
-  submitLead = () => {
+  submitLead = async () => {
+    if (this.leadRequestInFlight) return
     const name = this.state.leadName.trim()
     const phone = this.state.leadPhone.trim()
     const email = this.state.leadEmail.trim()
@@ -206,21 +202,30 @@ export default class ChatPrivado extends React.Component {
     if (phone.replace(/\D/g, '').length < 8) return this.setState({ leadErr: 'Informe um telefone válido.' })
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return this.setState({ leadErr: 'Informe um e-mail válido.' })
     const lead = { name, phone, email, time: new Date().toLocaleString('pt-BR') }
-    try { localStorage.setItem(LEADKEY, JSON.stringify(lead)) } catch (e) {}
-    const url = this.WEBHOOK
-    if (url) {
-      try {
-        fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, phone, data: lead.time, origem: location.href }),
-          // keepalive: o envio sobrevive se o visitante fechar a aba / navegar
-          // durante um cold start da função serverless — senão o lead se perde.
-          keepalive: true,
-        }).catch(() => {})
-      } catch (e) {}
+    const fingerprint = JSON.stringify({ name, phone, email })
+    if (this.pendingLead?.fingerprint !== fingerprint) {
+      this.pendingLead = { fingerprint, id: crypto.randomUUID() }
     }
-    this.setState({ lead, showLead: false, leadErr: '' })
+    this.leadRequestInFlight = true
+    this.setState({ leadSending: true, leadErr: '' })
+    try {
+      const response = await fetch(DEFAULT_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: this.pendingLead.id, name, email, phone, origem: location.href }),
+        keepalive: true,
+      })
+      const result = await response.json()
+      if (!response.ok || result.ok !== true) throw new Error('delivery_failed')
+      try { localStorage.setItem(LEADKEY, JSON.stringify(lead)) } catch (e) {}
+      this.pendingLead = null
+      this.setState({ lead, showLead: false, leadErr: '' })
+    } catch (e) {
+      this.setState({ leadErr: 'Não foi possível concluir seu cadastro. Tente novamente.' })
+    } finally {
+      this.leadRequestInFlight = false
+      this.setState({ leadSending: false })
+    }
   }
 
   /* registro / backup ----------------------------------------------- */
@@ -385,8 +390,8 @@ export default class ChatPrivado extends React.Component {
                   <input value={leadPhone} onInput={this.onLeadPhone} onChange={() => {}} inputMode="tel" placeholder="Telefone / WhatsApp" style={S.leadInput} />
                   <input value={leadEmail} onInput={this.onLeadEmail} onChange={() => {}} inputMode="email" placeholder="E-mail" style={{ ...S.leadInput, marginBottom: 0 }} />
                   {leadErr && <div style={{ color: '#ff6b6b', fontSize: 12, marginTop: 10 }}>{leadErr}</div>}
-                  <button onClick={this.submitLead} style={S.greenCta}>Liberar comentários</button>
-                  <div style={{ color: '#666', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Seus dados ficam salvos apenas neste dispositivo.</div>
+                  <button onClick={this.submitLead} disabled={this.state.leadSending} style={{ ...S.greenCta, opacity: this.state.leadSending ? 0.65 : 1 }}>{this.state.leadSending ? 'Enviando...' : 'Liberar comentários'}</button>
+                  <div style={{ color: '#666', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Seus dados serão enviados à nossa equipe para registrar seu cadastro.</div>
                 </div>
               </div>
             )}

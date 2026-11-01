@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-const PLAYER_ID = '6a3a81f61fa755ae788ed0f8'
+const PLAYER_ID = '6ae6c5c96efe4af03916e60b'
 const PLAYER_ACCOUNT = 'fae52404-8fd3-4f9c-8167-946eb654f0d6'
 const SMARTPLAYER_ID = `vid-${PLAYER_ID}`
 const SCRIPT_ID = `vturb-player-${PLAYER_ID}`
@@ -26,6 +26,15 @@ export default class VideoPlayer extends React.Component {
         margin: '0 auto',
         width: '100%',
       },
-    })
+    }, React.createElement('div', {
+      className: 'vturb-player-placeholder',
+      style: {
+        position: 'relative',
+        width: '100%',
+        padding: '56.25% 0 0',
+        zIndex: 0,
+        backgroundColor: 'black',
+      },
+    }))
   }
 }

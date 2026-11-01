@@ -1,13 +1,6 @@
 import { NextResponse } from 'next/server'
 
-/* Server-side proxy to the Clint CRM webhook.
- *
- * The browser POSTs the lead here (same-origin JSON). This route validates,
- * normalizes and forwards it to Clint from the server, so:
- *   - the real webhook URL never reaches the client (kept in CLINT_WEBHOOK_URL);
- *   - there is no CORS / no-cors silent loss — we can read Clint's response;
- *   - the phone is normalized and failures are logged.
- */
+// Server-side delivery to Google Sheets and Clint. Secrets never reach the browser.
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -29,37 +22,62 @@ export async function POST(request) {
   const email = String(payload?.email ?? '').trim()
   const phoneRaw = String(payload?.phone ?? '').trim()
   const phoneDigits = phoneRaw.replace(/\D/g, '')
+  const id = String(payload?.id ?? '')
 
-  if (name.length < 2) {
+  if (!/^[a-zA-Z0-9_-]{16,80}$/.test(id)) {
+    return NextResponse.json({ ok: false, error: 'invalid_id' }, { status: 400 })
+  }
+
+  if (name.length < 2 || name.length > 150) {
     return NextResponse.json({ ok: false, error: 'invalid_name' }, { status: 400 })
   }
-  if (phoneDigits.length < 8) {
+  if (phoneDigits.length < 8 || phoneRaw.length > 40) {
     return NextResponse.json({ ok: false, error: 'invalid_phone' }, { status: 400 })
   }
-  if (!EMAIL_RE.test(email)) {
+  if (!EMAIL_RE.test(email) || email.length > 254) {
     return NextResponse.json({ ok: false, error: 'invalid_email' }, { status: 400 })
   }
 
-  const data =
-    String(payload?.data ?? '').trim() || new Date().toLocaleString('pt-BR')
   const origem = String(payload?.origem ?? '').trim()
-
-  // Sent in both English and Portuguese to guarantee the Clint field mapping.
-  const body = {
-    name,
-    email,
-    phone: phoneRaw,
-    nome: name,
-    telefone: phoneRaw,
-    data,
-    origem,
+  if (origem.length > 2048) {
+    return NextResponse.json({ ok: false, error: 'invalid_origin' }, { status: 400 })
   }
 
-  const webhook = process.env.CLINT_WEBHOOK_URL || DEFAULT_WEBHOOK
+  const webhook = process.env.GOOGLE_SHEETS_WEBHOOK_URL
+  const secret = process.env.GOOGLE_SHEETS_WEBHOOK_SECRET
+  // Preserve the existing CRM capture until the Google integration is activated.
+  // Return explicit delivery status so this is not mistaken for a Sheets success.
+  if (!webhook || !secret) {
+    try {
+      const res = await fetch(process.env.CLINT_WEBHOOK_URL || DEFAULT_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, nome: name, email, phone: phoneRaw, telefone: phoneRaw, origem,
+          data: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+          submission_id: id,
+        }),
+        signal: AbortSignal.timeout(10000),
+      })
+      if (!res.ok) {
+        console.error('[api/lead] Clint delivery failed', res.status)
+        return NextResponse.json({ ok: false, error: 'clint_failed' }, { status: 502 })
+      }
+      console.warn('[api/lead] Clint received lead; Google Sheets is not configured')
+      return NextResponse.json({ ok: true, delivery: { clint: 'sent', sheets: 'not_configured' } })
+    } catch {
+      return NextResponse.json({ ok: false, error: 'clint_unavailable' }, { status: 502 })
+    }
+  }
+  const body = {
+    secret,
+    clintWebhook: process.env.CLINT_WEBHOOK_URL || DEFAULT_WEBHOOK,
+    lead: { id, name, email, phone: phoneRaw, origem },
+  }
 
-  // Never hang on a slow/stuck CRM: abort the forward after 10s.
+  // Apps Script can incur a cold start before writing to Sheets and forwarding.
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 10000)
+  const timeout = setTimeout(() => controller.abort(), 25000)
 
   try {
     const res = await fetch(webhook, {
@@ -69,18 +87,17 @@ export async function POST(request) {
       signal: controller.signal,
     })
 
-    const text = await res.text().catch(() => '')
-
-    if (!res.ok) {
-      console.error('[api/lead] Clint webhook failed', res.status, text.slice(0, 500))
-      return NextResponse.json({ ok: false, error: 'webhook_failed', status: res.status }, { status: 502 })
+    const result = await res.json().catch(() => null)
+    // Apps Script can return HTTP 200 for an application-level error or login page.
+    if (!res.ok || result?.ok !== true) {
+      console.error('[api/lead] delivery failed', res.status)
+      return NextResponse.json({ ok: false, error: 'delivery_failed' }, { status: 502 })
     }
 
-    console.log('[api/lead] forwarded to Clint', res.status, text.slice(0, 200))
     return NextResponse.json({ ok: true })
   } catch (err) {
     const reason = err?.name === 'AbortError' ? 'webhook_timeout' : 'webhook_error'
-    console.error('[api/lead]', reason, err)
+    console.error('[api/lead]', reason)
     return NextResponse.json({ ok: false, error: reason }, { status: 502 })
   } finally {
     clearTimeout(timeout)
